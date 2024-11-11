@@ -1,0 +1,175 @@
+DAA 2
+
+import heapq
+# Import the `heapq` module to work with heaps, which we will use to build the Huffman Tree.
+
+from collections import defaultdict
+# Import `defaultdict` from the `collections` module to easily count character frequencies.
+
+class HuffmanNode:
+    # Define a class `HuffmanNode` to represent each node in the Huffman Tree.
+
+    def __init__(self, char, freq):
+        # Initialize the `HuffmanNode` with a character (`char`) and its frequency (`freq`).
+
+        self.char = char
+        # Store the character in `self.char`.
+
+        self.freq = freq
+        # Store the frequency in `self.freq`.
+
+        self.left = None
+        # Initialize the left child as `None`.
+
+        self.right = None
+        # Initialize the right child as `None`.
+
+    def __lt__(self, other):
+        # Override the less-than operator to compare nodes by frequency when used in a heap.
+
+        return self.freq < other.freq
+        # Returns `True` if the current node’s frequency is less than `other` node's frequency.
+
+# Function to calculate the frequency of each character in the input data
+def calculate_frequency(data):
+    frequency = defaultdict(int)
+    # Initialize a defaultdict `frequency` with a default integer value of 0.
+
+    for char in data:
+        frequency[char] += 1
+        # For each character in `data`, increase its frequency count by 1 in `frequency`.
+
+    return frequency
+    # Return the dictionary `frequency`, which holds each character and its frequency.
+
+# Function to build the Huffman Tree
+def build_huffman_tree(frequency):
+    heap = [HuffmanNode(char, freq) for char, freq in frequency.items()]
+    # Create a list of `HuffmanNode` objects, one for each character and its frequency.
+    # `frequency.items()` gives pairs of character and frequency.
+
+    heapq.heapify(heap)
+    # Convert the list into a min-heap, arranging nodes by frequency.
+
+    while len(heap) > 1:
+        # Continue until there is only one node left in the heap, which will be the root of the Huffman Tree.
+
+        node1 = heapq.heappop(heap)
+        # Pop the node with the lowest frequency from the heap.
+
+        node2 = heapq.heappop(heap)
+        # Pop the next node with the lowest frequency from the heap.
+
+        merged = HuffmanNode(None, node1.freq + node2.freq)
+        # Create a new `HuffmanNode` that has no character (None) and frequency equal to the sum of `node1` and `node2`.
+
+        merged.left = node1
+        # Set the left child of the merged node to `node1`.
+
+        merged.right = node2
+        # Set the right child of the merged node to `node2`.
+
+        heapq.heappush(heap, merged)
+        # Push the merged node back into the heap.
+
+    return heap[0]
+    # Return the last remaining node in the heap, which is the root of the Huffman Tree.
+
+# Function to generate the Huffman codes by traversing the tree
+def generate_huffman_codes(node, current_code, codes):
+    # Generate Huffman codes by recursively traversing the Huffman Tree.
+    # `node` is the current HuffmanNode, `current_code` is the binary string representing the path to this node,
+    # and `codes` is the dictionary that will store the Huffman codes for each character.
+
+    if node is None:
+        return
+        # If the node is `None`, exit the function (base case for recursion).
+
+    if node.char is not None:
+        codes[node.char] = current_code
+        # If the node contains a character, store the `current_code` in `codes` for that character.
+
+    generate_huffman_codes(node.left, current_code + '0', codes)
+    # Recursively call the function on the left child, appending '0' to `current_code` for the left branch.
+
+    generate_huffman_codes(node.right, current_code + '1', codes)
+    # Recursively call the function on the right child, appending '1' to `current_code` for the right branch.
+
+# Function to encode the data using the Huffman codes
+def huffman_encode(data, codes):
+    encoded_data = ''.join([codes[char] for char in data])
+    # For each character in `data`, look up its Huffman code in `codes` and concatenate the codes to form `encoded_data`.
+
+    return encoded_data
+    # Return the encoded binary string representation of `data`.
+
+# Function to decode the encoded data using the Huffman tree
+def huffman_decode(encoded_data, root):
+    decoded_data = []
+    # Initialize an empty list `decoded_data` to store the decoded characters.
+
+    current_node = root
+    # Start from the root of the Huffman Tree to begin decoding.
+
+    for bit in encoded_data:
+        if bit == '0':
+            current_node = current_node.left
+            # If the current bit is '0', move to the left child of the current node.
+        else:
+            current_node = current_node.right
+            # If the current bit is '1', move to the right child of the current node.
+
+        if current_node.char is not None:
+            decoded_data.append(current_node.char)
+            # If we reach a leaf node (a node with a character), add that character to `decoded_data`.
+
+            current_node = root
+            # Reset to the root node to decode the next character.
+
+    return ''.join(decoded_data)
+    # Join all the characters in `decoded_data` to form the decoded string and return it.
+
+# Function to perform the full Huffman encoding and return encoded data and the Huffman tree root
+def huffman_encoding(data):
+    if not data:
+        return "", None
+        # If the input `data` is empty, return an empty string and `None`.
+
+    frequency = calculate_frequency(data)
+    # Calculate the frequency of each character in `data`.
+
+    huffman_tree_root = build_huffman_tree(frequency)
+    # Build the Huffman Tree using the calculated frequencies.
+
+    huffman_codes = {}
+    # Initialize an empty dictionary `huffman_codes` to store the generated codes.
+
+    generate_huffman_codes(huffman_tree_root, '', huffman_codes)
+    # Generate the Huffman codes for each character by traversing the Huffman Tree.
+
+    encoded_data = huffman_encode(data, huffman_codes)
+    # Encode the `data` using the generated Huffman codes.
+
+    return encoded_data, huffman_tree_root
+    # Return the encoded data and the root of the Huffman Tree for decoding purposes.
+
+if __name__ == "__main__":
+     data = "HUFFMAN ENCODING"
+
+    # Input string `data` to be encoded using Huffman encoding.
+
+    print("Original Data:", data)
+    # Print the original data for reference.
+
+    encoded_data, huffman_tree_root = huffman_encoding(data)
+    # Call the `huffman_encoding` function to get the encoded data and the Huffman Tree root.
+
+    print("Encoded Data:", encoded_data)
+    # Print the encoded binary string.
+
+    if huffman_tree_root:
+        decoded_data = huffman_decode(encoded_data, huffman_tree_root)
+        # Decode the `encoded_data` using the Huffman Tree root if it exists.
+
+        print("Decoded Data:", decoded_data)
+        # Print the decoded data to verify it matches the original data.

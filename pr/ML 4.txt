@@ -1,0 +1,120 @@
+ML 4
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, accuracy_score, precision_score, recall_score, classification_report
+
+data = pd.read_csv(r"C:\Users\Aastha\Downloads\diabetes.csv")
+
+data
+
+data.info()
+
+data.describe()
+
+data.isnull().sum()
+
+print(data.head())  # Show the first 5 rows of the dataset
+print(data.tail())  # Show the last 5 rows of the dataset
+print(data.shape)   # Check the shape (number of rows and columns)
+print(data.info())  # Check for missing values and column types
+print(data.describe())  # Get the summary statistics of numerical columns
+
+# Check for and replace zero values in specific columns with the mean of each column
+data.replace(to_replace = 0, value = data['Glucose'].mean(), inplace=True)
+data.replace(to_replace = 0, value = data['BloodPressure'].mean(), inplace=True)
+data.replace(to_replace = 0, value = data['SkinThickness'].mean(), inplace=True)
+data.replace(to_replace = 0, value = data['Insulin'].mean(), inplace=True)
+data.replace(to_replace = 0, value = data['BMI'].mean(), inplace=True)
+
+data.isnull().sum()
+
+data.isna()
+
+data.isna().sum()
+
+sns.countplot(x = data["Outcome"])
+plt.title('Distribution of Outcome (1 = diabetic, 0 = non-diabetic)')
+plt.show()
+
+# Visualizing boxplots to check for outliers in important features
+sns.boxplot(data = data, x = 'Pregnancies')
+plt.title('Boxplot of Pregnancies')
+plt.show()
+
+sns.boxplot(data = data, x = 'Glucose')
+plt.title('Boxplot of Glucose')
+plt.show()
+
+sns.boxplot(data = data, x = 'BloodPressure')
+plt.title('Boxplot of BloodPressure')
+plt.show()
+
+sns.boxplot(data = data, x = 'SkinThickness')
+plt.title('Boxplot of SkinThickness')
+plt.show()
+
+print(data.corr())
+
+data['Outcome'] = data['Outcome'].astype(int)  # Convert to integer (if necessary)
+
+# Split the data again
+X = data.drop('Outcome', axis=1)
+y = data['Outcome']
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+print("The shapes of the train and test datasets are:")
+print(X_train.shape, X_test.shape, y_train.shape, y_test.shape)
+
+knn = KNeighborsClassifier(n_neighbors = 5)
+knn.fit(X_train, y_train)
+
+y_pred_knn = knn.predict(X_test)
+
+print(f"Confusion Matrix is: {confusion_matrix(y_test, y_pred_knn)}")
+
+print(f"Accuracy Score: {accuracy_score(y_test, y_pred_knn)}")
+
+error_rate = 1 - accuracy_score(y_test, y_pred_knn)
+print(f"Error rate: {error_rate}")
+
+print("Classification Report: ")
+print(classification_report(y_test, y_pred_knn))
+
+# Display Recall Score
+print(f"Recall Score: {recall_score(y_test, y_pred_knn)}")
+
+# Display Precision Score
+print(f"Precision Score: {precision_score(y_test, y_pred_knn)}")
+
+from sklearn.linear_model import LogisticRegression
+
+
+# Split data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Initialize and train the logistic regression model
+model = LogisticRegression(max_iter=1000)
+model.fit(X_train, y_train)
+
+
+# Make predictions on the test set
+y_pred = model.predict(X_test)
+
+# Evaluate the model
+accuracy = accuracy_score(y_test, y_pred)
+conf_matrix = confusion_matrix(y_test, y_pred)
+precision = precision_score(y_test, y_pred)
+recall = recall_score(y_test, y_pred)
+
+
+# Print evaluation metrics
+print(f"Accuracy: {accuracy:.2f}")
+print(f"Confusion Matrix:\n{conf_matrix}")
+print(f"Precision: {precision:.2f}")
+print(f"Recall: {recall:.2f}")

@@ -1,0 +1,140 @@
+daa 3
+class KnapsackPackage(object):
+    # Define a class called KnapsackPackage to represent each item in the knapsack.
+    
+    def __init__(self, weight, value):
+        # The initializer method that is called when a new instance of KnapsackPackage is created.
+        # It takes the weight and value of the item as input.
+        
+        self.weight = weight
+        # Store the weight of the item in the instance variable `self.weight`.
+        
+        self.value = value
+        # Store the value of the item in the instance variable `self.value`.
+        
+        self.cost = value / weight
+        # Calculate the "cost" of the item, defined as its value per unit weight, and store it in `self.cost`.
+        # This is used to determine the priority of the item in the fractional knapsack.
+
+    def __lt__(self, other):
+        # Override the less-than operator (`<`) to allow sorting KnapsackPackage objects based on `cost`.
+        
+        return self.cost > other.cost
+        # This will sort items in descending order of `cost` per unit weight when used with the `sort()` method.
+
+
+class FractionalKnapsack(object):
+    # Define a class called FractionalKnapsack to implement the fractional knapsack problem using a greedy approach.
+
+    def knapsackGreProc(self, W, V, M, n):
+        # Define a method `knapsackGreProc` that solves the fractional knapsack problem.
+        # W -> List of item weights.
+        # V -> List of item values.
+        # M -> Maximum weight capacity of the knapsack.
+        # n -> Number of items.
+
+        packs = []
+        # Initialize an empty list called `packs` to store KnapsackPackage objects.
+        
+        for i in range(n):
+            # Loop through each item from 0 to n-1.
+            
+            packs.append(KnapsackPackage(W[i], V[i]))
+            # Create a KnapsackPackage object for each item with weight `W[i]` and value `V[i]`.
+            # Add each package to the `packs` list.
+        
+        packs.sort(reverse=True)
+        # Sort the `packs` list in descending order of cost per unit weight.
+        
+        remain = M
+        # Initialize `remain` with the maximum weight capacity `M`.
+        # This variable keeps track of the remaining weight capacity in the knapsack.
+        
+        result = 0
+        # Initialize `result` to store the total value of items in the knapsack.
+        
+        i = 0
+        # Initialize an index `i` to loop through the sorted `packs` list.
+        
+        stopProc = False
+        # Initialize a boolean variable `stopProc` to control the while loop.
+
+        # Process until all packages are either taken or the knapsack is full
+        while not stopProc:
+            if packs[i].weight <= remain:
+                # Check if the weight of the current package `packs[i]` can fully fit in the remaining capacity.
+
+                remain -= packs[i].weight
+                # Deduct the weight of the package from the remaining capacity.
+                
+                result += packs[i].value
+                # Add the value of the package to `result`.
+                
+                print(f"Pack {i+1} – Weight {packs[i].weight} – Value {packs[i].value}")
+                # Print the information of the fully included package.
+            
+            else:
+                # If the weight of the current package is more than the remaining capacity:
+
+                fraction = remain / packs[i].weight
+                # Calculate the fraction of the package's weight that can be taken.
+
+                result += packs[i].value * fraction
+                # Add the proportional value of the fraction taken to `result`.
+                
+                print(f"Pack {i+1} – Weight {packs[i].weight} – Value {packs[i].value} (fraction taken: {fraction*100}%)")
+                # Print the information of the package, including the fraction taken.
+                
+                stopProc = True
+                # Set `stopProc` to True to exit the loop since the knapsack is now full.
+
+            i += 1
+            # Move to the next item in the list.
+            
+            if i == n:
+                # If all items have been processed, set `stopProc` to True to end the loop.
+                
+                stopProc = True
+
+        print(f"Max Value: {result}")
+        # Print the maximum value that can be achieved in the knapsack.
+
+
+if __name__ == "__main__":
+    # This section will run only if the script is executed directly.
+    
+    W = []  # List to store weights of the items.
+    V = []  # List to store values (profits) of the items.
+    
+    num = int(input("Enter the number of items: "))
+    # Take user input for the number of items and store it in `num`.
+    
+    for i in range(num):
+        # Loop to input weights for all items.
+        
+        n = int(input(f"Enter weight {i+1}: "))
+        # Take the weight of the item `i+1` from the user.
+        
+        W.append(n)
+        # Append the entered weight to the list `W`.
+    
+    for i in range(num):
+        # Loop to input values for all items.
+        
+        n = int(input(f"Enter value {i+1}: "))
+        # Take the value of the item `i+1` from the user.
+        
+        V.append(n)
+        # Append the entered value to the list `V`.
+    
+    M = int(input("Enter the capacity of the knapsack: "))
+    # Take the maximum weight capacity of the knapsack from the user and store it in `M`.
+    
+    n = len(V)
+    # Calculate the number of items, which is the length of the list `V`.
+    
+    proc = FractionalKnapsack()
+    # Create an instance of the FractionalKnapsack class.
+    
+    proc.knapsackGreProc(W, V, M, n)
+    # Call the `knapsackGreProc` method to compute the maximum value that can be carried in the knapsack.

@@ -1,0 +1,95 @@
+ML3
+
+# Import necessary libraries
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+import tensorflow as tf
+from tensorflow import keras
+from keras.layers import Dense
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import confusion_matrix, classification_report
+
+# If necessary, install TensorFlow
+# !pip install tensorflow
+# !pip install keras
+
+# Load dataset
+df = pd.read_csv("Churn_Modelling.csv")
+
+# Check for missing values
+print(df.isnull().sum())
+
+# Basic statistics and info
+print(df.describe())
+print(df.info())
+print(df.columns)
+
+# Drop columns that are not needed for the model
+df = df.drop(['Surname', 'CustomerId', 'RowNumber'], axis=1)
+
+# Encoding categorical variables
+# One-hot encode 'Geography' and 'Gender'
+states = pd.get_dummies(df['Geography'], drop_first=True)
+gender = pd.get_dummies(df['Gender'], drop_first=True)
+
+# Concatenate the encoded columns back to the dataframe
+df = pd.concat([df, gender, states], axis=1)
+
+# Define the features (X) and target (y)
+X = df[['CreditScore', 'Age', 'Tenure', 'Balance', 'NumOfProducts', 
+        'HasCrCard', 'IsActiveMember', 'EstimatedSalary', 'Male', 'Germany', 'Spain']]
+y = df['Exited']  # Target variable (whether the customer left)
+
+# Split the dataset into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.30, random_state=42)
+
+# Feature scaling (standardization)
+sc = StandardScaler()
+X_train = sc.fit_transform(X_train)
+X_test = sc.transform(X_test)
+
+# Build the Neural Network classifier
+from keras.models import Sequential
+from keras.layers import Dense
+
+classifier = Sequential()
+
+# Add input layer with 11 features and a hidden layer with 6 units
+classifier.add(Dense(activation='relu', input_dim=11, units=6, kernel_initializer='uniform'))
+
+# Add another hidden layer
+classifier.add(Dense(activation='relu', units=6, kernel_initializer='uniform'))
+
+# Add the output layer with 1 unit and sigmoid activation function for binary classification
+classifier.add(Dense(activation='sigmoid', units=1, kernel_initializer='uniform'))
+
+# Compile the model using Adam optimizer and binary crossentropy loss function
+classifier.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+
+# Display the model summary
+classifier.summary()
+
+# Fit the model to the training dataset
+classifier.fit(X_train, y_train, batch_size=10, epochs=50)
+
+# Predict using the trained model
+y_pred = classifier.predict(X_test)
+y_pred = (y_pred > 0.5)  # Convert predictions to binary values (0 or 1)
+
+# Generate confusion matrix
+cm = confusion_matrix(y_test, y_pred)
+print(cm)
+
+# Plot the confusion matrix as a heatmap
+plt.figure(figsize=(10, 7))
+sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", linewidths=0.5)
+plt.xlabel('Predicted')
+plt.ylabel('Truth')
+plt.title('Confusion Matrix for Neural Network')
+plt.show()
+
+# Classification report to evaluate model performance
+print(classification_report(y_test, y_pred))

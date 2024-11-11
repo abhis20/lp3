@@ -1,0 +1,100 @@
+#include <iostream>
+#include <vector>
+#include <cstdlib>  // For rand() and srand()
+#include <ctime>    // For time()
+
+class QuickSort {
+private:
+    std::vector<int> array;
+
+    // Deterministic method to find pivot
+    int partition(int low, int high) {
+        int pivot = array[high];  // Choose the last element as the pivot
+        int i = low - 1;          // Initialize pointer for elements smaller than the pivot
+
+        // Loop to arrange elements around the pivot
+        for (int j = low; j < high; j++) {
+            if (array[j] <= pivot) {
+                i++;  // Increment pointer for smaller elements
+                std::swap(array[i], array[j]);  // Move smaller element to the left
+            }
+        }
+        // Place pivot in the correct position
+        std::swap(array[i + 1], array[high]);
+        return i + 1;  // Return the pivot index
+    }
+
+    // Randomized method to find pivot
+    int partition_random(int low, int high) {
+        int pivotIndex = low + rand() % (high - low + 1);  // Pick random pivot index
+        std::swap(array[pivotIndex], array[high]);  // Swap random pivot with last element
+        return partition(low, high);  // Use deterministic partition function
+    }
+
+public:
+    // Constructor to initialize array
+    QuickSort(const std::vector<int>& arr) : array(arr) {}
+
+    // Deterministic variant of QuickSort
+    void sort_d(int low, int high) {
+        if (low < high) {  // Check if array section has more than one element
+            int pivot = partition(low, high);  // Partition array and get pivot index
+            sort_d(low, pivot - 1);  // Recursively apply QuickSort to the left of pivot
+            sort_d(pivot + 1, high);  // Recursively apply QuickSort to the right of pivot
+        }
+    }
+
+    // Randomized variant of QuickSort
+    void sort_r(int low, int high) {
+        if (low < high) {  // Check if array section has more than one element
+            int pivot = partition_random(low, high);  // Partition array with random pivot
+            sort_r(low, pivot - 1);  // Recursively apply QuickSort to the left of pivot
+            sort_r(pivot + 1, high);  // Recursively apply QuickSort to the right of pivot
+        }
+    }
+
+    // Function to display the sorted array
+    void display() {
+        for (int num : array) {
+            std::cout << num << " ";
+        }
+        std::cout << std::endl;
+    }
+};
+
+int main() {
+    srand(time(0));  // Seed random number generator for randomized QuickSort
+
+    while (true) {  // Infinite loop to prompt user for input repeatedly
+        try {
+            std::cout << "Press Ctrl+C to exit..." << std::endl;
+
+            // Read input from user and store it in a vector
+            std::vector<int> array;
+            int num;
+            std::cout << "Enter array (space-separated integers): ";
+            while (std::cin >> num) {
+                array.push_back(num);  // Add each integer to the array
+                if (std::cin.peek() == '\n') break;  // Stop reading on newline
+            }
+
+            // Deterministic QuickSort
+            std::cout << "Deterministic variant of sort" << std::endl;
+            QuickSort sort1(array);  // Create QuickSort instance with input array
+            sort1.sort_d(0, array.size() - 1);  // Sort using deterministic QuickSort
+            sort1.display();  // Display sorted array
+
+            // Randomized QuickSort
+            std::cout << "Randomized variant of sort" << std::endl;
+            QuickSort sort2(array);  // Create another QuickSort instance with input array
+            sort2.sort_r(0, array.size() - 1);  // Sort using randomized QuickSort
+            sort2.display();  // Display sorted array
+
+        } catch (...) {  // Catch all exceptions (including Ctrl+C to exit)
+            std::cout << "\nProgram exited by user." << std::endl;
+            break;  // Exit the loop to end program
+        }
+    }
+
+    return 0;
+}

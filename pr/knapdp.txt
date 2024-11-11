@@ -1,0 +1,72 @@
+DAA 4
+
+def knapSack(W, wt, val, n):
+    # Define the function knapSack that calculates the maximum achievable value in a knapsack of weight capacity W.
+    # W  -> The maximum weight capacity of the knapsack.
+    # wt -> A list of weights of the items.
+    # val -> A list of values (profits) of the items.
+    # n  -> The number of items.
+    
+    dp = [0 for i in range(W + 1)]
+    # Initialize a list `dp` with size W + 1, filled with zeros.
+    # dp[w] will store the maximum value that can be achieved with weight capacity `w`.
+
+    for i in range(1, n + 1):
+        # Loop through each item, starting from the first (i=1) to the nth item.
+        # `i` is the index of the item being considered (1-based index for clarity).
+
+        for w in range(W, 0, -1):
+            # Traverse the dp array in reverse order (from capacity W down to 1).
+            # This ensures that we do not use the same item multiple times in this iteration.
+
+            if wt[i - 1] <= w:
+                # Check if the weight of the current item (wt[i - 1]) is less than or equal to the current weight limit `w`.
+                # If yes, then the item can be included in the knapsack with this capacity `w`.
+
+                dp[w] = max(dp[w], dp[w - wt[i - 1]] + val[i - 1])
+                # Update dp[w] with the maximum value achievable with weight `w`.
+                # Either we take the item (`dp[w - wt[i - 1]] + val[i - 1]`) or we don't (`dp[w]`).
+
+    return dp[W]
+    # Return the maximum value that can be achieved with the knapsack of weight capacity `W`.
+
+
+if __name__ == "__main__":
+    # Entry point of the script; this section will execute only if the script is run directly.
+
+    W = []  # List to store weights of the items.
+    V = []  # List to store values (profits) of the items.
+    
+    num = int(input("Enter the number of items: \n"))
+    # Take user input for the number of items and store it in `num`.
+
+    for i in range(num):
+        # Loop to input weights for all items.
+        
+        n = int(input(f"Enter weight {i + 1}: "))
+        # Take weight of the item `i+1` from the user.
+        
+        W.append(n)
+        # Append the entered weight to the list `W`.
+    
+    for i in range(num):
+        # Loop to input values for all items.
+
+        n = int(input(f"Enter value {i + 1}: "))
+        # Take value of the item `i+1` from the user.
+        
+        V.append(n)
+        # Append the entered value to the list `V`.
+    
+    M = int(input("Enter the capacity of the knapsack: "))
+    # Take the maximum weight capacity of the knapsack from the user and store it in `M`.
+    
+    n = len(V)
+    # Get the number of items, which is the length of the list `V`.
+
+    result = knapSack(M, W, V, n)
+    # Call the knapSack function with capacity `M`, weights `W`, values `V`, and number of items `n`.
+    # Store the result in `result`.
+
+    print(f"\nMaximum value in Knapsack: {result}")
+    # Print the maximum value that can be achieved in the knapsack with the given weight capacity.

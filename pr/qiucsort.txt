@@ -1,0 +1,128 @@
+DAA 5
+
+import random
+# Import the random module to use the random number generation for the randomized partition method.
+
+class QuickSort:
+    # Define a class called QuickSort to implement both deterministic and randomized QuickSort methods.
+    
+    def __init__(self, array):
+        # The initializer method, called when a new instance of QuickSort is created.
+        # It takes an array as input and assigns it to the instance variable `self.array`.
+        self.array = array
+    
+    # Deterministic method to find pivot
+    def partition(self, low, high):
+        # This method partitions the array in a deterministic way, using the last element as the pivot.
+        
+        pivot = self.array[high]
+        # Choose the last element in the array section as the pivot.
+        
+        i = low - 1
+        # Initialize `i` as a pointer for elements smaller than the pivot.
+
+        for j in range(low, high):
+            # Iterate over elements from `low` to `high - 1`.
+            
+            if self.array[j] <= pivot:
+                # Check if the current element is less than or equal to the pivot.
+                
+                i += 1
+                # Move the boundary for elements less than the pivot one step right.
+                
+                self.array[i], self.array[j] = self.array[j], self.array[i]
+                # Swap the element at `i` with the element at `j`, moving the smaller element to the left side.
+        
+        self.array[i + 1], self.array[high] = self.array[high], self.array[i + 1]
+        # Place the pivot in its correct position by swapping it with the element at `i + 1`.
+        
+        return i + 1
+        # Return the pivot index, which is now correctly positioned.
+
+    def partition_random(self, low, high):
+        # This method selects a random pivot, improving performance on certain types of data.
+        
+        pivot = random.randint(low, high)
+        # Select a random index between `low` and `high` for the pivot.
+        
+        self.array[pivot], self.array[high] = self.array[high], self.array[pivot]
+        # Swap the randomly chosen pivot with the element at `high` to make it compatible with `partition`.
+        
+        return self.partition(low, high)
+        # Call the deterministic `partition` function to perform the partition around the random pivot.
+
+    # Deterministic variant of QuickSort
+    def sort_d(self, low, high):
+        # This method implements the deterministic QuickSort algorithm using the `partition` method.
+
+        if low < high:
+            # Check if there is more than one element to sort in this section.
+            
+            pivot = self.partition(low, high)
+            # Partition the array and get the pivot index.
+            
+            self.sort_d(low, pivot - 1)
+            # Recursively apply QuickSort to the left side of the pivot.
+            
+            self.sort_d(pivot + 1, high)
+            # Recursively apply QuickSort to the right side of the pivot.
+    
+    # Randomized variant of QuickSort
+    def sort_r(self, low, high):
+        # This method implements the randomized QuickSort algorithm using the `partition_random` method.
+        
+        if low < high:
+            # Check if there is more than one element to sort in this section.
+            
+            pivot = self.partition_random(low, high)
+            # Partition the array using a random pivot and get the pivot index.
+            
+            self.sort_r(low, pivot - 1)
+            # Recursively apply randomized QuickSort to the left side of the pivot.
+            
+            self.sort_r(pivot + 1, high)
+            # Recursively apply randomized QuickSort to the right side of the pivot.
+
+
+while True:
+    # Enter an infinite loop to continuously prompt the user for input.
+    
+    try:
+        print("Press Ctrl+C to exit...")
+        # Display an instruction message for exiting the program.
+        
+        array = [int(i) for i in input("Enter array = ").split()]
+        # Take user input as a string, split by spaces, convert each element to an integer, and store in `array`.
+        
+        print("Deterministic variant of sort")
+        # Indicate that the deterministic QuickSort is about to run.
+        
+        sort1 = QuickSort(array.copy())
+        # Create an instance of QuickSort with a copy of the input array to preserve the original for the next variant.
+        
+        sort1.sort_d(0, len(array) - 1)
+        # Call the deterministic QuickSort method on `sort1` from index `0` to `len(array) - 1`.
+        
+        print(sort1.array)
+        # Print the sorted array after running deterministic QuickSort.
+
+        print("Randomized variant of sort")
+        # Indicate that the randomized QuickSort is about to run.
+        
+        sort2 = QuickSort(array.copy())
+        # Create another instance of QuickSort with a fresh copy of the input array for the randomized variant.
+        
+        sort2.sort_r(0, len(array) - 1)
+        # Call the randomized QuickSort method on `sort2` from index `0` to `len(array) - 1`.
+        
+        print(sort2.array)
+        # Print the sorted array after running randomized QuickSort.
+
+    except KeyboardInterrupt:
+        # Catch the KeyboardInterrupt exception when the user presses Ctrl+C to exit.
+        
+        print("\nProgram exited by user.")
+        # Print a message indicating that the program was exited by the user.
+        
+        break
+        # Exit the loop and end the program.

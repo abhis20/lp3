@@ -1,0 +1,92 @@
+ML2
+
+# Import necessary libraries
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.metrics import classification_report, confusion_matrix, ConfusionMatrixDisplay, precision_score, recall_score, accuracy_score
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.svm import SVC
+
+# Read the dataset
+data = pd.read_csv("emails.csv")
+
+# Drop the 'Email No.' column (assuming it's an index column that isn't useful for analysis)
+data = data.drop('Email No.', axis=1)
+
+# Basic exploratory data analysis
+print(data.shape)  # Check the shape of the dataset (rows and columns)
+print(data.describe())  # Summary statistics
+print(data.info())  # Info about the dataset (data types and null values)
+
+# Check class distribution in the target variable
+print(data['Prediction'].value_counts())
+
+# Split features and target variable
+X = data.drop('Prediction', axis = 1)  # Features (all columns except 'Prediction')
+y = data['Prediction']  # Target variable (Spam or Not Spam)
+
+# Split the data into training and testing sets (80% training, 20% testing)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.20, random_state=42)
+
+# K-Nearest Neighbors (KNN) model
+# Initialize KNN classifier with 2 neighbors
+neigh = KNeighborsClassifier(n_neighbors = 2)
+neigh.fit(X_train, y_train)  # Fit the model on the training data
+
+# Make predictions on the test set
+y_pred = neigh.predict(X_test)
+
+# Evaluate model performance using accuracy score on both training and test data
+print("KNN Model Performance:")
+print("Training accuracy: ", neigh.score(X_train, y_train))  # Accuracy on training set
+print("Test accuracy: ", neigh.score(X_test, y_test))  # Accuracy on test set
+
+# Confusion Matrix for KNN
+print("Confusion Matrix for KNN: ")
+cm = confusion_matrix(y_test, y_pred)  # Generate confusion matrix
+print(cm)
+
+# Visualize the confusion matrix
+mat = ConfusionMatrixDisplay(confusion_matrix = cm)
+mat.plot()
+plt.show()
+
+# Classification report for KNN
+print("Classification Report for KNN: ")
+print(classification_report(y_test, y_pred))
+
+# Additional evaluation metrics for KNN
+print("Accuracy Score: ", accuracy_score(y_test, y_pred))  # Accuracy score
+print("Precision Score: ", precision_score(y_test, y_pred))  # Precision score
+print("Recall Score: ", recall_score(y_test, y_pred))  # Recall score
+print("Error Rate: ", 1 - accuracy_score(y_test, y_pred))  # Error rate (1 - accuracy)
+
+# Support Vector Machine (SVM) model
+# Initialize SVM classifier with auto gamma setting
+SVM = SVC(gamma = 'auto')
+SVM.fit(X_train, y_train)  # Fit the model on the training data
+
+# Evaluate SVM model
+print("SVM Model Performance:")
+print("Training accuracy: ", SVM.score(X_train, y_train))  # Accuracy on training set
+print("Test accuracy: ", SVM.score(X_test, y_test))  # Accuracy on test set
+
+# Predict using SVM model
+y_pred_svm = SVM.predict(X_test)
+
+# Confusion Matrix for SVM
+print("Confusion Matrix for SVM: ")
+cm_svm = confusion_matrix(y_test, y_pred_svm)  # Generate confusion matrix for SVM
+print(cm_svm)
+
+# Visualize the confusion matrix for SVM
+mat_svm = ConfusionMatrixDisplay(confusion_matrix = cm_svm)
+mat_svm.plot()
+plt.show()
+
+# Classification report for SVM
+print("Classification Report for SVM: ")
+print(classification_report(y_test, y_pred_svm))
